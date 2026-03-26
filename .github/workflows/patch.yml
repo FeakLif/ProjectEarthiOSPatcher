@@ -16,26 +16,30 @@ jobs:
         with:
           python-version: "3.11"
 
-      # 📥 Download IPA from Google Drive
+      # 🔥 RELIABLE GOOGLE DRIVE DOWNLOAD
       - name: Download IPA
         run: |
           FILE_ID="14CpIdYbJ1eSmFe253XGqLM_tg0nNKHxQ"
 
-          wget --save-cookies cookies.txt \
-               "https://drive.google.com/uc?export=download&id=$FILE_ID" -O- \
-               | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1/p' > confirm.txt
+          echo "[INFO] Getting confirm token..."
 
-          CONFIRM=$(cat confirm.txt)
+          curl -c cookies.txt -L "https://drive.google.com/uc?export=download&id=$FILE_ID" > response.html
 
-          wget --load-cookies cookies.txt \
-               "https://drive.google.com/uc?export=download&confirm=$CONFIRM&id=$FILE_ID" \
-               -O ipa.ipa
+          CONFIRM=$(grep -o 'confirm=[0-9A-Za-z_]*' response.html | head -n1 | cut -d= -f2)
 
-      # 🔧 Run patcher
+          echo "[INFO] Confirm token: $CONFIRM"
+
+          echo "[INFO] Downloading real file..."
+
+          curl -Lb cookies.txt "https://drive.google.com/uc?export=download&confirm=$CONFIRM&id=$FILE_ID" -o ipa.ipa
+
+          echo "[INFO] Download finished"
+
+          ls -lh ipa.ipa
+
       - name: Run patcher
         run: python main.py
 
-      # 📦 Upload result
       - name: Upload patched IPA
         uses: actions/upload-artifact@v4
         with:
