@@ -1,0 +1,43 @@
+name: Patch IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 📥 Download IPA from Google Drive
+      - name: Download IPA
+        run: |
+          FILE_ID="14CpIdYbJ1eSmFe253XGqLM_tg0nNKHxQ"
+
+          wget --save-cookies cookies.txt \
+               "https://drive.google.com/uc?export=download&id=$FILE_ID" -O- \
+               | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1/p' > confirm.txt
+
+          CONFIRM=$(cat confirm.txt)
+
+          wget --load-cookies cookies.txt \
+               "https://drive.google.com/uc?export=download&confirm=$CONFIRM&id=$FILE_ID" \
+               -O ipa.ipa
+
+      # 🔧 Run patcher
+      - name: Run patcher
+        run: python main.py
+
+      # 📦 Upload result
+      - name: Upload patched IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: patched-ipa
+          path: patched.ipa
