@@ -16,30 +16,18 @@ jobs:
         with:
           python-version: "3.11"
 
-      # 🔥 RELIABLE GOOGLE DRIVE DOWNLOAD
+      # 🔥 Download IPA from GitHub Releases (YOUR LINK)
       - name: Download IPA
         run: |
-          FILE_ID="14CpIdYbJ1eSmFe253XGqLM_tg0nNKHxQ"
-
-          echo "[INFO] Getting confirm token..."
-
-          curl -c cookies.txt -L "https://drive.google.com/uc?export=download&id=$FILE_ID" > response.html
-
-          CONFIRM=$(grep -o 'confirm=[0-9A-Za-z_]*' response.html | head -n1 | cut -d= -f2)
-
-          echo "[INFO] Confirm token: $CONFIRM"
-
-          echo "[INFO] Downloading real file..."
-
-          curl -Lb cookies.txt "https://drive.google.com/uc?export=download&confirm=$CONFIRM&id=$FILE_ID" -o ipa.ipa
-
-          echo "[INFO] Download finished"
-
+          wget https://github.com/hamalainenmiska100-hue/ProjectEarthiOSPatcher/releases/download/V1/ipa.ipa -O ipa.ipa
+          echo "[INFO] File downloaded:"
           ls -lh ipa.ipa
 
+      # 🔧 Run patcher
       - name: Run patcher
         run: python main.py
 
+      # 📦 Upload patched IPA
       - name: Upload patched IPA
         uses: actions/upload-artifact@v4
         with:
