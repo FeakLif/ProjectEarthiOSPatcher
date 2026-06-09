@@ -3,7 +3,7 @@ import shutil
 import zipfile
 import patcher
 
-IP = "http://172.29.148.159:8080/"
+IP = "http://100.125.132.126:8080/"
 
 def cleanup():
     if os.path.exists('data'):
